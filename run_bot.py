@@ -15,7 +15,7 @@ def send_telegram(text: str):
         print("❌ 缺少 TELEGRAM_TOKEN 或 CHAT_ID")
         return
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    resp = requests.post(url, data={
+    resp = requests.post(url, json={
         "chat_id": CHAT_ID, 
         "text": text, 
         "disable_web_page_preview": True   # 關閉縮圖
