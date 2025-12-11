@@ -2,8 +2,8 @@ name: News Bot
 
 on:
   workflow_dispatch:   # 手動觸發
-  schedule:
-    - cron: "*/30 * * * *"   # 每 30 分鐘執行一次
+  # schedule:
+  #   - cron: "*/30 * * * *"   # 每 30 分鐘執行一次
 
 jobs:
   run-news-bot:
