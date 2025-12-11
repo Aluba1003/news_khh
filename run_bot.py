@@ -15,7 +15,11 @@ def send_telegram(text: str):
         print("❌ 缺少 TELEGRAM_TOKEN 或 CHAT_ID")
         return
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    resp = requests.post(url, data={"chat_id": CHAT_ID, "text": text})
+    resp = requests.post(url, data={
+        "chat_id": CHAT_ID, 
+        "text": text, 
+        "disable_web_page_preview": True   # 關閉縮圖
+        })
     if resp.status_code != 200:
         print("❌ 推播失敗:", resp.text)
     else:
@@ -34,8 +38,6 @@ def fetch_rss(source_name, url, keywords, match_mode="any"):
                     results.append((source_name, title, link))
             else:
                 results.append((source_name, title, link))
-        if not results:
-            results.append((source_name, "【沒有符合的新聞】", ""))
     except Exception as e:
         results.append((source_name, f"【抓取失敗: {e}】", ""))
     return results
