@@ -58,9 +58,12 @@ def main():
     with open("sources.yml", "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
-    keywords = config.get("keywords", ["新北"])   # 從 YAML 讀取關鍵字
-    match_mode = config.get("match_mode", "any") # 從 YAML 讀取比對模式
-    delay = config.get("delay", 1)               # 從 YAML 讀取延遲秒數，預設 1 秒
+    if "keywords" not in config or "match_mode" not in config or "delay" not in config:
+        raise ValueError("❌ YAML 必須包含 keywords, match_mode, delay 三個欄位")
+    
+    keywords = config.get("keywords")   
+    match_mode = config.get("match_mode")
+    delay = config.get("delay")               
 
     for source in config["sources"]:
         if not source.get("enabled", True):
