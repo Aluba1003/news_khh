@@ -9,8 +9,8 @@ from collections import OrderedDict
 
 load_dotenv()
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+# 改為讀取 Cloudflare Worker 網址
+CF_WORKER_URL = os.getenv("CF_WORKER_URL")
 
 PUSHED_FILE = "pushed.json"
 MAX_RECORDS = 1000  # 限制最多保留 1000 筆紀錄
@@ -39,25 +39,22 @@ def save_pushed_records(records):
 pushed_records = load_pushed_records()
 
 def send_telegram(text: str, delay: int):
-    if not TELEGRAM_TOKEN or not CHAT_ID:
-        print("❌ 缺少 TELEGRAM_TOKEN 或 CHAT_ID")
+    if not CF_WORKER_URL:
+        print("❌ 缺少 CF_WORKER_URL 環境變數")
         return
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    resp = requests.post(url, json={
-        "chat_id": CHAT_ID,
-        "text": text,
-        "disable_web_page_preview": True
-    })
-    if resp.status_code != 200:
-        data = resp.json()
-        print("❌ 推播失敗:", data)
-        if data.get("error_code") == 429:
-            retry_after = data["parameters"]["retry_after"]
-            print(f"⏸ 等待 {retry_after} 秒後重試...")
-            time.sleep(retry_after)
-            return send_telegram(text, delay)
-    else:
-        print("✅ 推播成功")
+    
+    try:
+        resp = requests.post(CF_WORKER_URL, json={
+            "message": text
+        }, timeout=10)
+        
+        if resp.status_code != 200:
+            print("❌ 推播失敗:", resp.text)
+        else:
+            print("✅ 推播成功")
+    except Exception as e:
+        print(f"❌ 發送請求發生錯誤: {e}")
+        
     time.sleep(delay)
 
 def fetch_rss(source_name, url, keywords, match_mode="any"):
